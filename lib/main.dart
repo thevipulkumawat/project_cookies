@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:project_cookies/data/data.dart';
+
+import 'model/tile_mode.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -28,10 +32,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<TileModel> pairs = <TileModel>[];
+  List<TileModel> visiblePairs = <TileModel>[];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    pairs = getPairs();
+    pairs.shuffle();
+    visiblePairs = pairs;
+
+    Future.delayed(const Duration(seconds: 5), () {
+      setState(() {
+        visiblePairs = getQuestions();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        padding: EdgeInsets.symmetric(vertical: 50, horizontal: 20),
         child: Column(
           children: [
             Text('0/800'),
@@ -40,12 +64,19 @@ class _HomePageState extends State<HomePage> {
               height: 20,
             ),
             GridView(
+              shrinkWrap: true,
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 mainAxisSpacing: 0.0,
                 maxCrossAxisExtent: 100,
               ),
-              shrinkWrap: true,
-            )
+              children: List.generate(visiblePairs.length, (index) {
+                return Tile(
+                  imageAssetPath: pairs[index].getImageAssetPath(),
+                  parent: this,
+                  selected: pairs[index].getIsSelected(),
+                );
+              }),
+            ),
           ],
         ),
       ),
@@ -53,12 +84,17 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
+@immutable
 class Tile extends StatefulWidget {
-  Tile({Key? key, required this.imageAssetPath, required this.parent, required this.selected}) : super(key: key);
+  Tile(
+      {Key? key,
+      required this.imageAssetPath,
+      required this.parent,
+      required this.selected})
+      : super(key: key);
   String imageAssetPath;
   bool selected;
   _HomePageState parent;
-
 
   @override
   State<Tile> createState() => _TileState();
