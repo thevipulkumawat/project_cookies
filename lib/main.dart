@@ -60,37 +60,60 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(
               height: 40,
             ),
-            Text(
-              '$points/800',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const Text(
-              'Points',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            points != 800
+                ? Column(
+                    children: [
+                      Text(
+                        '$points/800',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const Text(
+                        'Points',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      )
+                    ],
+                  )
+                : Container(),
             const SizedBox(
               height: 20,
             ),
-            GridView(
-              shrinkWrap: true,
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                mainAxisSpacing: 0.0,
-                maxCrossAxisExtent: 100,
-              ),
-              children: List.generate(visiblePairs.length, (index) {
-                return Tile(
-                  imageAssetPath: visiblePairs[index].getImageAssetPath(),
-                  parent: this,
-                  tileIndex: index,
-                );
-              }),
-            ),
+            points != 800
+                ? GridView(
+                    shrinkWrap: true,
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      mainAxisSpacing: 0.0,
+                      maxCrossAxisExtent: 100,
+                    ),
+                    children: List.generate(visiblePairs.length, (index) {
+                      return Tile(
+                        imageAssetPath: visiblePairs[index].getImageAssetPath(),
+                        parent: this,
+                        tileIndex: index,
+                      );
+                    }),
+                  )
+                : Container(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Text(
+                      'Replay',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
           ],
         ),
       ),
