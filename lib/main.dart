@@ -32,9 +32,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<TileModel> pairs = <TileModel>[];
-  List<TileModel> visiblePairs = <TileModel>[];
-
   @override
   void initState() {
     // TODO: implement initState
@@ -43,10 +40,12 @@ class _HomePageState extends State<HomePage> {
     pairs = getPairs();
     pairs.shuffle();
     visiblePairs = pairs;
+    selected = true;
 
     Future.delayed(const Duration(seconds: 5), () {
       setState(() {
         visiblePairs = getQuestions();
+        selected = false;
       });
     });
   }
@@ -55,11 +54,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
         child: Column(
           children: [
-            Text('0/800'),
-            Text('Points'),
+            const SizedBox(
+              height: 40,
+            ),
+            Text(
+              '$points/800',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Text(
+              'Points',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             const SizedBox(
               height: 20,
             ),
@@ -71,9 +85,9 @@ class _HomePageState extends State<HomePage> {
               ),
               children: List.generate(visiblePairs.length, (index) {
                 return Tile(
-                  imageAssetPath: pairs[index].getImageAssetPath(),
+                  imageAssetPath: visiblePairs[index].getImageAssetPath(),
                   parent: this,
-                  selected: pairs[index].getIsSelected(),
+                  tileIndex: index,
                 );
               }),
             ),
@@ -86,14 +100,14 @@ class _HomePageState extends State<HomePage> {
 
 @immutable
 class Tile extends StatefulWidget {
-  Tile(
-      {Key? key,
-      required this.imageAssetPath,
-      required this.parent,
-      required this.selected})
-      : super(key: key);
+  Tile({
+    Key? key,
+    required this.imageAssetPath,
+    required this.parent,
+    required this.tileIndex,
+  }) : super(key: key);
   String imageAssetPath;
-  bool selected;
+  int tileIndex;
   _HomePageState parent;
 
   @override
@@ -103,9 +117,57 @@ class Tile extends StatefulWidget {
 class _TileState extends State<Tile> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      child: Image.asset(widget.imageAssetPath),
+    return GestureDetector(
+      onTap: () {
+        if (!selected) {
+          if (selectedImageAssetPath != "") {
+            if (selectedImageAssetPath ==
+                pairs[widget.tileIndex].getImageAssetPath()) {
+              //correct
+              print('correct');
+              selected = true;
+              Future.delayed(const Duration(seconds: 2), () {
+                points = points + 100;
+                setState(() {});
+                selected = false;
+                widget.parent.setState(() {
+                  pairs[widget.tileIndex].setImageAssetPath("");
+                  pairs[selectedTileIndex].setImageAssetPath("");
+                });
+                selectedImageAssetPath = "";
+              });
+            } else {
+              //wrong choice
+              print('wrong');
+              selected = true;
+              Future.delayed(const Duration(seconds: 2), () {
+                selected = false;
+                widget.parent.setState(() {
+                  pairs[widget.tileIndex].setIsSelected(false);
+                  pairs[selectedTileIndex].setIsSelected(false);
+                });
+                selectedImageAssetPath = "";
+              });
+            }
+          } else {
+            selectedTileIndex = widget.tileIndex;
+            selectedImageAssetPath =
+                pairs[widget.tileIndex].getImageAssetPath();
+          }
+          setState(() {
+            pairs[widget.tileIndex].setIsSelected(true);
+          });
+
+          print('you clicked me');
+        }
+      },
+      child: Container(
+          margin: const EdgeInsets.all(5),
+          child: pairs[widget.tileIndex].getImageAssetPath() != ""
+              ? Image.asset(pairs[widget.tileIndex].getIsSelected()
+                  ? pairs[widget.tileIndex].getImageAssetPath()
+                  : widget.imageAssetPath)
+              : Image.asset("assets/correct.png")),
     );
   }
 }

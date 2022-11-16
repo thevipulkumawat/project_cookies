@@ -1,5 +1,12 @@
 import '../model/tile_mode.dart';
 
+List<TileModel> pairs = <TileModel>[];
+List<TileModel> visiblePairs = <TileModel>[];
+int points = 0;
+bool selected = false;
+String selectedImageAssetPath = "";
+int selectedTileIndex = 0;
+
 List<TileModel> getPairs() {
   List<TileModel> pairs = <TileModel>[];
   TileModel tileModel = TileModel(imageAssetPath: '', isSelected: false);
